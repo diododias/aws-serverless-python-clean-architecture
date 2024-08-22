@@ -1,15 +1,15 @@
-import datetime
+from datetime import datetime, UTC
 import uuid
 from unittest import mock
 
+from src.application.ride_planning_notification_gateway_interface import RidePlanningNotificationGatewayInterface
 from src.domain.entities.address_entity import AddressEntity
 from src.domain.entities.ride_planning_entity import RidePlanningEntity
 from src.domain.entities.ride_planning_status_enum import RidePlanningStatusEnum
-from src.domain.value_objects.ride_planning_Id import RidePlanningId
-from src.drivers_adapters.gateways.ride_planning_notification_gateway_impl import RidePlanningNotificationGatewayImpl
+from src.drivers_adapters.gateways.ride_planning_sns_gateway import RidePlanningSnsGateway
 
 
-class TestRidePlanningNotificationGatewayImpl:
+class TestRidePlanningSnsGateway:
     mock_event = {
         "user_id": "cace4a159ff9f2512dd42373760608767b62855d",
         "address_from": {
@@ -33,7 +33,9 @@ class TestRidePlanningNotificationGatewayImpl:
         address_from=AddressEntity(**mock_event.get("address_from")),
         address_to=AddressEntity(**mock_event.get("address_to")),
         status=RidePlanningStatusEnum.REQUESTED,
-        departure_datetime=datetime.datetime.now()
+        departure_datetime=datetime.now(UTC),
+        created_at=datetime.now(UTC),
+        modified_at=datetime.now(UTC),
     )
 
     def test_return_ride_planning_id_when_execute_successfull(self):
@@ -43,7 +45,8 @@ class TestRidePlanningNotificationGatewayImpl:
         sns_client_mock.publish = mock.Mock(return_value={"MessageId": fake_message_id})
         sns_topic_arn = "FAKE-TOPIC-ARN"
 
-        notification_gateway = RidePlanningNotificationGatewayImpl(sns_client_mock, sns_topic_arn)
+        notification_gateway: RidePlanningNotificationGatewayInterface = (
+            RidePlanningSnsGateway(sns_client_mock, sns_topic_arn))
 
         # act
         response = notification_gateway.send(self.ride_planning_mock)

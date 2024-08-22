@@ -3,11 +3,11 @@ from datetime import datetime
 
 from src.domain.entities.address_entity import AddressEntity
 from src.domain.entities.ride_planning_entity import RidePlanningEntity
-from src.domain.value_objects.ride_planning_Id import RidePlanningId
+from src.domain.value_objects.ride_planning_id import RidePlanningId
 from src.domain.value_objects.user_id import UserId
 
 
-class RidePlanningPersistenceGateway(metaclass=ABCMeta):
+class RidePlanningPersistenceGatewayInterface(metaclass=ABCMeta):
     @abstractmethod
     def save(self, ride_planning: RidePlanningEntity) -> RidePlanningId:
         raise NotImplementedError()

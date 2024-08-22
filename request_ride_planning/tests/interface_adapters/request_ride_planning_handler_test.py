@@ -6,7 +6,7 @@ from unittest import mock
 from aws_lambda_powertools.utilities.parser import parse
 from aws_lambda_powertools.utilities.typing import LambdaContext
 
-from src.domain.use_cases.request_ride_planning_use_case import RequestRidePlanningUseCase
+from src.domain.use_cases.request_ride_planning_use_case_interface import RequestRidePlanningUseCaseInterface
 from src.interface_adapters.handler_response import HandlerResponse
 from src.interface_adapters.request_ride_planning_handler import RequestRidePlanningHandler
 
@@ -113,7 +113,7 @@ class TestRequestRidePlanningHandler:
     def test_return_success_when_payload_correct(self):
         # arrange
         mock_return_value = "cace4a159ff9f2512dd42373760608767b62855d"
-        use_case = mock.Mock(spec=RequestRidePlanningUseCase)
+        use_case = mock.Mock(spec=RequestRidePlanningUseCaseInterface)
         use_case.execute = mock.Mock(return_value=mock_return_value)
         handler = RequestRidePlanningHandler(use_case, parse)
 
@@ -127,7 +127,7 @@ class TestRequestRidePlanningHandler:
 
     def test_return_bad_request_when_payload_incorrect(self):
         # arrange
-        use_case = mock.Mock(spec=RequestRidePlanningUseCase)
+        use_case = mock.Mock(spec=RequestRidePlanningUseCaseInterface)
         use_case.execute = mock.Mock()
         handler = RequestRidePlanningHandler(use_case, parse)
 
@@ -152,7 +152,7 @@ class TestRequestRidePlanningHandler:
 
     def test_return_internal_server_error_when_use_case_fail(self):
         # arrange
-        use_case = mock.Mock(spec=RequestRidePlanningUseCase)
+        use_case = mock.Mock(spec=RequestRidePlanningUseCaseInterface)
         use_case.execute = mock.Mock()
         use_case.execute.side_effect = Exception()
         handler = RequestRidePlanningHandler(use_case, parse)
