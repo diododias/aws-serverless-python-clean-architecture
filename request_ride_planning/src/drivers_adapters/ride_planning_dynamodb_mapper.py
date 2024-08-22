@@ -6,6 +6,8 @@ from typing import Dict
 from src.domain.entities.address_entity import AddressEntity
 from src.domain.entities.ride_planning_entity import RidePlanningEntity
 from src.domain.entities.ride_planning_status_enum import RidePlanningStatusEnum
+from src.domain.value_objects.ride_planning_id import RidePlanningId
+from src.domain.value_objects.user_id import UserId
 from src.drivers_adapters.dynamodb_constants import PRIMARY_KEY, SORT_KEY, TTL_IN_DAYS
 
 DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S%z"
@@ -32,8 +34,8 @@ def map_persistence_schema_to_ride_planning(ride_planning_dto: Dict[str, str | D
     address_from_dto = json.loads(ride_planning_dto.get("address_from"))
     address_to_dto = json.loads(ride_planning_dto.get("address_from"))
     return RidePlanningEntity(
-        id=ride_planning_dto.get(SORT_KEY),
-        user_id=ride_planning_dto.get(PRIMARY_KEY),
+        id=RidePlanningId(ride_planning_dto.get(SORT_KEY)),
+        user_id=UserId(ride_planning_dto.get(PRIMARY_KEY)),
         address_from=AddressEntity(
             address_from_dto.get("street"),
             address_from_dto.get("city"),

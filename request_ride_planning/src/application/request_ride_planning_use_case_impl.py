@@ -12,8 +12,6 @@ from src.domain.use_cases.request_ride_planning_use_case_interface import Reques
 from src.domain.value_objects.ride_planning_id import RidePlanningId
 from src.domain.value_objects.user_id import UserId
 
-TZ = "America/Sao_Paulo"
-
 
 class RequestRidePlanningUseCaseImpl(RequestRidePlanningUseCaseInterface):
     _persistence_gateway: RidePlanningPersistenceGatewayInterface
@@ -78,7 +76,7 @@ class RequestRidePlanningUseCaseImpl(RequestRidePlanningUseCaseInterface):
             departure_datetime
         )
         ride_planning: RidePlanningEntity = RidePlanningEntity(
-            id=uuid.uuid4().hex,
+            id=RidePlanningId(uuid.uuid4().hex),
             user_id=user_id,
             address_from=address_from,
             address_to=address_to,
