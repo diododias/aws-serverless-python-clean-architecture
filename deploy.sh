@@ -7,7 +7,6 @@ mkdir package
 pip install -r requirements.txt --target package/ --platform manylinux2014_x86_64 --only-binary=:all: --implementation cp --python-version 3.12
 cp -r src/ package/src/
 
-rm -f function.zip
 cd package
 zip -r9 ../function.zip *
 cd ..
@@ -22,8 +21,8 @@ aws cloudformation deploy --template-file output.yaml --stack-name ride-planning
 
 
 echo "Cleaning"
-rm -rf /request_ride_planning/package
-rm -rf /request_ride_planning/function.zip
+rm -rf request_ride_planning/package
+rm -rf request_ride_planning/function.zip
 
 echo "Concluded"
 
