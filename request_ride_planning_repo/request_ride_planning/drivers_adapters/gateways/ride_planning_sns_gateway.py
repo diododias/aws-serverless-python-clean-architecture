@@ -3,7 +3,8 @@ import json
 from typing import NewType
 from aws_lambda_powertools import Logger
 
-from request_ride_planning.application.ride_planning_notification_gateway_interface import RidePlanningNotificationGatewayInterface
+from request_ride_planning.application.ride_planning_notification_gateway_interface import (
+    RidePlanningNotificationGatewayInterface)
 from request_ride_planning.domain.entities.ride_planning_entity import RidePlanningEntity
 
 SnsClient = NewType("SnsClient", object)

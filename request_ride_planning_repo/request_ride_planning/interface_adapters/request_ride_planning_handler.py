@@ -6,7 +6,8 @@ from aws_lambda_powertools.utilities.typing import LambdaContext
 from pydantic import ValidationError
 
 from request_ride_planning.domain.entities.address_entity import AddressEntity
-from request_ride_planning.domain.use_cases.request_ride_planning_use_case_interface import RequestRidePlanningUseCaseInterface
+from request_ride_planning.domain.use_cases.request_ride_planning_use_case_interface import (
+    RequestRidePlanningUseCaseInterface)
 from request_ride_planning.domain.value_objects.user_id import UserId
 from request_ride_planning.interface_adapters.handler_request import HandlerRequest, BodyRequest
 from request_ride_planning.interface_adapters.handler_response import (created_response, validation_error_response,

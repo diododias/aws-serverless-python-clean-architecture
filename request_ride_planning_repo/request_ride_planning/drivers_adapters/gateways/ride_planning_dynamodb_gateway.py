@@ -5,14 +5,16 @@ from typing import NewType
 from boto3.dynamodb.conditions import Key
 from aws_lambda_powertools import Logger
 
-from request_ride_planning.application.ride_planning_persistence_gateway_interface import RidePlanningPersistenceGatewayInterface
+from request_ride_planning.application.ride_planning_persistence_gateway_interface import (
+    RidePlanningPersistenceGatewayInterface)
 from request_ride_planning.domain.entities.address_entity import AddressEntity
 from request_ride_planning.domain.entities.ride_planning_entity import RidePlanningEntity
 from request_ride_planning.domain.value_objects.ride_planning_id import RidePlanningId
 from request_ride_planning.domain.value_objects.user_id import UserId
 from request_ride_planning.drivers_adapters.dynamodb_constants import RIDE_PROPERTIES_HASH, PRIMARY_KEY, SORT_KEY
-from request_ride_planning.drivers_adapters.ride_planning_dynamodb_mapper import map_ride_planning_to_persistence_schema, \
-    map_persistence_schema_to_ride_planning
+from request_ride_planning.drivers_adapters.ride_planning_dynamodb_mapper import (
+    map_ride_planning_to_persistence_schema,
+    map_persistence_schema_to_ride_planning)
 
 DynamodbResourceTable = NewType("DynamodbResourceTable", object)
 

@@ -5,12 +5,16 @@ from lagom import Container, Singleton
 from aws_lambda_powertools.utilities.parser import parse
 
 from request_ride_planning.application.request_ride_planning_use_case_impl import RequestRidePlanningUseCaseImpl
-from request_ride_planning.application.ride_planning_notification_gateway_interface import RidePlanningNotificationGatewayInterface
-from request_ride_planning.application.ride_planning_persistence_gateway_interface import RidePlanningPersistenceGatewayInterface
-from request_ride_planning.domain.use_cases.request_ride_planning_use_case_interface import RequestRidePlanningUseCaseInterface
-from request_ride_planning.drivers_adapters.gateways.ride_planning_sns_gateway import TopicArn, SnsClient, RidePlanningSnsGateway
-from request_ride_planning.drivers_adapters.gateways.ride_planning_dynamodb_gateway import DynamodbResourceTable, \
-    RidePlanningDynamodbGateway
+from request_ride_planning.application.ride_planning_notification_gateway_interface import (
+    RidePlanningNotificationGatewayInterface)
+from request_ride_planning.application.ride_planning_persistence_gateway_interface import (
+    RidePlanningPersistenceGatewayInterface)
+from request_ride_planning.domain.use_cases.request_ride_planning_use_case_interface import (
+    RequestRidePlanningUseCaseInterface)
+from request_ride_planning.drivers_adapters.gateways.ride_planning_sns_gateway import (
+    TopicArn, SnsClient, RidePlanningSnsGateway)
+from request_ride_planning.drivers_adapters.gateways.ride_planning_dynamodb_gateway import (DynamodbResourceTable,
+                                                                                            RidePlanningDynamodbGateway)
 from request_ride_planning.interface_adapters.request_ride_planning_handler import RequestRidePlanningHandler
 
 
