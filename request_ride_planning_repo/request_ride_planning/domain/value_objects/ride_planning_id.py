@@ -1,0 +1,3 @@
+
+class RidePlanningId(str):
+    pass
