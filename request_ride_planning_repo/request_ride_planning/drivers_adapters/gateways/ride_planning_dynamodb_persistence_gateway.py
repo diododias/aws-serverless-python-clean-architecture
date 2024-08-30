@@ -1,4 +1,6 @@
+import dataclasses
 import hashlib
+import json
 
 from datetime import datetime
 from typing import NewType
@@ -19,7 +21,7 @@ from request_ride_planning.drivers_adapters.ride_planning_dynamodb_mapper import
 DynamodbResourceTable = NewType("DynamodbResourceTable", object)
 
 
-class RidePlanningDynamodbGateway(RidePlanningPersistenceGatewayInterface):
+class RidePlanningDynamodbPersistenceGateway(RidePlanningPersistenceGatewayInterface):
     _dynamodb_resource_table: DynamodbResourceTable
     _logger = Logger(child=True)
 
@@ -60,17 +62,18 @@ class RidePlanningDynamodbGateway(RidePlanningPersistenceGatewayInterface):
             ride_planning.departure_datetime
         )
         ride_planning_item = map_ride_planning_to_persistence_schema(ride_planning, synthetic_id)
+        self._logger.debug(f"Put Item: {ride_planning_item}")
         self._dynamodb_resource_table.put_item(Item=ride_planning_item)
         return ride_planning.id
 
-    def get_latest_by_user_id_ride_attributes(self,
-                                              user_id: UserId,
-                                              address_from: AddressEntity,
-                                              address_to: AddressEntity,
-                                              departure_datetime: datetime
-                                              ) -> RidePlanningEntity | None:
+    def find_latest_by_user_id_and_ride_attributes(self,
+                                                   user_id: UserId,
+                                                   address_from: AddressEntity,
+                                                   address_to: AddressEntity,
+                                                   departure_datetime: datetime
+                                                   ) -> RidePlanningEntity | None:
         """
-        Get latest Ride Planning that have same ride attributes
+        Find latest Ride Planning that have same ride attributes
 
         Args:
             user_id: User ID
@@ -81,25 +84,16 @@ class RidePlanningDynamodbGateway(RidePlanningPersistenceGatewayInterface):
         Returns: RidePlanning Object if is found
         """
         synthetic_id: str = self._generate_synthetic_id(address_from, address_to, departure_datetime)
-        self._logger.debug("Looking for a ride planning with same attributes")
         response = self._dynamodb_resource_table.query(
             IndexName=RIDE_PROPERTIES_HASH,
             KeyConditionExpression=Key(PRIMARY_KEY).eq(user_id) & Key(RIDE_PROPERTIES_HASH).begins_with(synthetic_id),
             ConsistentRead=True,
             Limit=1,
-            ScanIndexForward=False
+            ScanIndexForward=False,
+            Select="ALL_ATTRIBUTES"
         )
         if response.get("Items"):
-            item = response.get("Items")[0]
-            self._logger.debug("get ride planning item")
-            ride_response = self._dynamodb_resource_table.get_item(
-                Key={
-                    str(PRIMARY_KEY): item.get(PRIMARY_KEY),
-                    str(SORT_KEY): item.get(SORT_KEY)
-                }
-            )
-            if "Item" in ride_response:
-                ride = ride_response.get("Item")
-                self._logger.debug("map item to ride planning entity")
-                return map_persistence_schema_to_ride_planning(ride)
+            ride = response.get("Items")[0]
+            self._logger.debug(f"Found item: {ride}")
+            return map_persistence_schema_to_ride_planning(ride)
         return None

@@ -13,10 +13,10 @@ class RidePlanningPersistenceGatewayInterface(metaclass=ABCMeta):
         raise NotImplementedError()
 
     @abstractmethod
-    def get_latest_by_user_id_ride_attributes(self,
-                                              user_id: UserId,
-                                              address_from: AddressEntity,
-                                              address_to: AddressEntity,
-                                              departure_datetime: datetime
-                                              ) -> RidePlanningEntity | None:
+    def find_latest_by_user_id_and_ride_attributes(self,
+                                                   user_id: UserId,
+                                                   address_from: AddressEntity,
+                                                   address_to: AddressEntity,
+                                                   departure_datetime: datetime
+                                                   ) -> RidePlanningEntity | None:
         raise NotImplementedError()

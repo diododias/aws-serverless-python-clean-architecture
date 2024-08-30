@@ -1,4 +1,4 @@
-# Python AWS Lambda example of Clean Architecture implementation
+# Python AWS Serverless example of Clean Architecture implementation
 
 Some Conceptual techniques applied to this project:
 - SOLID
@@ -24,7 +24,7 @@ AWS Stack:
 - DynamoDB, with LSI Index
 - Cloudformation IaaS
 
-## Big Feature: Ride Planning
+# Big Feature: Ride Planning
 
 explicar o caso de uso
 

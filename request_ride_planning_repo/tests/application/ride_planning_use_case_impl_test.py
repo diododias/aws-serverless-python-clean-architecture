@@ -10,7 +10,7 @@ from request_ride_planning.application.ride_planning_notification_gateway_interf
     RidePlanningNotificationGatewayInterface
 from request_ride_planning.application.ride_planning_persistence_gateway_interface import \
     RidePlanningPersistenceGatewayInterface
-from request_ride_planning.application.too_many_requests_exception import TooManyRequestsException
+from request_ride_planning.application.too_many_requests_error import TooManyRequestsError
 from request_ride_planning.domain.entities.address_entity import AddressEntity
 from request_ride_planning.domain.entities.ride_planning_entity import RidePlanningEntity
 from request_ride_planning.domain.entities.ride_planning_status_enum import RidePlanningStatusEnum
@@ -22,6 +22,7 @@ from request_ride_planning.domain.value_objects.user_id import UserId
 
 class TestRidePlanningUseCaseImpl:
     mock_event = {
+        "id": "d39d5e8ed9c04096a65f679468600db1",
         "user_id": "cace4a159ff9f2512dd42373760608767b62855d",
         "address_from": {
             "street": "Rua Augusta, 321",
@@ -30,16 +31,19 @@ class TestRidePlanningUseCaseImpl:
             "postal_code": "03881100"
         },
         "address_to": {
-            "street": "Avenida 25 de Marco, 322",
+            "street": "Rua Augusta, 321",
             "city": "Sao Paulo",
             "country": "Brazil",
             "postal_code": "03881100"
         },
-        "departure_datetime": "2024-12-01T05:33:20.000Z"
+        "departure_datetime": "2024-12-01 05:33:20+00:00",
+        "created_at": "2024-08-30 01:38:09+00:00",
+        "modified_at": "2024-08-30 01:38:09+00:00",
+        "status": "REQUESTED",
+        "ride_options": []
     }
-    id = uuid.uuid4().hex
     ride_planning_mock = RidePlanningEntity(
-        id=RidePlanningId(id),
+        id=RidePlanningId(mock_event.get("id")),
         user_id=UserId(mock_event.get("user_id")),
         address_from=AddressEntity(**mock_event.get("address_from")),
         address_to=AddressEntity(**mock_event.get("address_to")),
@@ -73,8 +77,8 @@ class TestRidePlanningUseCaseImpl:
         # assert
         assert isinstance(ride_planning_id, RidePlanningId)
         persistence_gateway_mock.save.assert_called()
-        persistence_gateway_mock.get_latest_by_user_id_ride_attributes.assert_called()
-        notification_gateway_mock.send.assert_called()
+        persistence_gateway_mock.find_latest_by_user_id_and_ride_attributes.assert_called()
+        notification_gateway_mock.notify_requested.assert_called()
 
     def test_explode_too_many_requests_exception_when_has_ride_planning_executing(self):
         # arrange
@@ -84,13 +88,13 @@ class TestRidePlanningUseCaseImpl:
         persistence_gateway_mock = mock.Mock(spec=RidePlanningPersistenceGatewayInterface)
         persistence_gateway_mock.save = mock.Mock()
         # return ride planning in execution state
-        persistence_gateway_mock.get_latest_by_user_id_ride_attributes = mock.Mock(return_value=self.ride_planning_mock)
+        persistence_gateway_mock.find_latest_by_user_id_and_ride_attributes = mock.Mock(return_value=self.ride_planning_mock)
 
         use_case: RequestRidePlanningUseCaseInterface = (
             RequestRidePlanningUseCaseImpl(persistence_gateway_mock, notification_gateway_mock))
 
         # act
-        with pytest.raises(TooManyRequestsException):
+        with pytest.raises(TooManyRequestsError):
             use_case.execute(
                 user_id=UserId(self.mock_event.get("user_id")),
                 address_from=AddressEntity(**self.mock_event.get("address_from")),
@@ -100,8 +104,8 @@ class TestRidePlanningUseCaseImpl:
 
         # assert
         persistence_gateway_mock.save.assert_not_called()
-        persistence_gateway_mock.get_latest_by_user_id_ride_attributes.assert_called()
-        notification_gateway_mock.send.assert_not_called()
+        persistence_gateway_mock.find_latest_by_user_id_and_ride_attributes.assert_called()
+        notification_gateway_mock.notify_requested.assert_not_called()
 
     def test_return_ride_planning_id_when_latest_ride_planning_is_done(self):
         # arrange
@@ -129,5 +133,5 @@ class TestRidePlanningUseCaseImpl:
         # assert
         assert isinstance(ride_planning_id, RidePlanningId)
         persistence_gateway_mock.save.assert_called()
-        persistence_gateway_mock.get_latest_by_user_id_ride_attributes.assert_called()
-        notification_gateway_mock.send.assert_called()
+        persistence_gateway_mock.find_latest_by_user_id_and_ride_attributes.assert_called()
+        notification_gateway_mock.notify_requested.assert_called()

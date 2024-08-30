@@ -6,7 +6,9 @@ from request_ride_planning.application.ride_planning_notification_gateway_interf
 from request_ride_planning.domain.entities.address_entity import AddressEntity
 from request_ride_planning.domain.entities.ride_planning_entity import RidePlanningEntity
 from request_ride_planning.domain.entities.ride_planning_status_enum import RidePlanningStatusEnum
-from request_ride_planning.drivers_adapters.gateways.ride_planning_sns_gateway import RidePlanningSnsGateway
+from request_ride_planning.domain.value_objects.ride_planning_id import RidePlanningId
+from request_ride_planning.domain.value_objects.user_id import UserId
+from request_ride_planning.drivers_adapters.gateways.ride_planning_sns_notification_gateway import RidePlanningSnsNotificationGateway
 
 
 class TestRidePlanningSnsGateway:
@@ -28,8 +30,8 @@ class TestRidePlanningSnsGateway:
     }
     id = uuid.uuid4().hex
     ride_planning_mock = RidePlanningEntity(
-        id=id,
-        user_id=mock_event.get("user_id"),
+        id=RidePlanningId(mock_event.get("user_id")),
+        user_id=UserId(mock_event.get("user_id")),
         address_from=AddressEntity(**mock_event.get("address_from")),
         address_to=AddressEntity(**mock_event.get("address_to")),
         status=RidePlanningStatusEnum.REQUESTED,
@@ -46,10 +48,10 @@ class TestRidePlanningSnsGateway:
         sns_topic_arn = "FAKE-TOPIC-ARN"
 
         notification_gateway: RidePlanningNotificationGatewayInterface = (
-            RidePlanningSnsGateway(sns_client_mock, sns_topic_arn))
+            RidePlanningSnsNotificationGateway(sns_client_mock, sns_topic_arn))
 
         # act
-        response = notification_gateway.send(self.ride_planning_mock)
+        response = notification_gateway.notify_requested(self.ride_planning_mock)
 
         # assert
         assert response == fake_message_id

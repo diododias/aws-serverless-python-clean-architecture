@@ -7,6 +7,7 @@ OK_STATUS_CODE = 200
 CREATED_STATUS_CODE = 201
 BAD_REQUEST_STATUS_CODE = 400
 INTERNAL_SERVER_ERROR_STATUS_CODE = 500
+TOO_MANY_REQUESTS_STATUS_CODE = 429
 
 
 class HandlerResponse(TypedDict):
@@ -44,5 +45,12 @@ def bad_request_response(error: str) -> HandlerResponse:
 def internal_server_error_response(error: str) -> HandlerResponse:
     return {
         "statusCode": INTERNAL_SERVER_ERROR_STATUS_CODE,
+        "body": json.dumps({"error": error})
+    }
+
+
+def too_many_requests_response(error: str) -> HandlerResponse:
+    return {
+        "statusCode": TOO_MANY_REQUESTS_STATUS_CODE,
         "body": json.dumps({"error": error})
     }

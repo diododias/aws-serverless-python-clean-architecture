@@ -1,15 +1,17 @@
+import dataclasses
 import uuid
 
 from datetime import datetime, UTC
 from aws_lambda_powertools import Logger
 
-from request_ride_planning.application.too_many_requests_exception import TooManyRequestsException
 from request_ride_planning.application.ride_planning_notification_gateway_interface import (
     RidePlanningNotificationGatewayInterface)
 from request_ride_planning.application.ride_planning_persistence_gateway_interface import (
     RidePlanningPersistenceGatewayInterface)
+from request_ride_planning.application.too_many_requests_error import TooManyRequestsError
 from request_ride_planning.domain.entities.address_entity import AddressEntity
 from request_ride_planning.domain.entities.ride_planning_entity import RidePlanningEntity
+from request_ride_planning.domain.entities.ride_planning_status_enum import RidePlanningStatusEnum
 from request_ride_planning.domain.use_cases.request_ride_planning_use_case_interface import (
     RequestRidePlanningUseCaseInterface)
 from request_ride_planning.domain.value_objects.ride_planning_id import RidePlanningId
@@ -46,15 +48,21 @@ class RequestRidePlanningUseCaseImpl(RequestRidePlanningUseCaseInterface):
         Raises:
             TooManyRequestsException
         """
-        rp: RidePlanningEntity = self._persistence_gateway.get_latest_by_user_id_ride_attributes(
+        rp: RidePlanningEntity = self._persistence_gateway.find_latest_by_user_id_and_ride_attributes(
             user_id,
             address_from,
             address_to,
             departure_datetime
         )
-        if rp and not rp.is_done():
-            raise TooManyRequestsException(rp)
-        self._logger.info("Has no similar ride planning found in processing state")
+        if rp is None:
+            self._logger.info("Has no similar ride planning found in processing state")
+            return
+        if rp.check_waiting_for_expiration():
+            self._notification_gateway.notify_waiting_for_expiration(rp)
+            self._logger.info(f"Found Ride Planning id {rp.id} entering expiration state")
+        if not rp.is_completed:
+            raise TooManyRequestsError(rp)
+        self._logger.info(f"User id {user_id} can request a new Ride Planning")
 
     def execute(self,
                 user_id: UserId,
@@ -84,12 +92,13 @@ class RequestRidePlanningUseCaseImpl(RequestRidePlanningUseCaseInterface):
             address_from=address_from,
             address_to=address_to,
             departure_datetime=departure_datetime,
+            status=RidePlanningStatusEnum.REQUESTED,
             created_at=datetime.now(UTC),
             modified_at=datetime.now(UTC)
         )
         self._persistence_gateway.save(ride_planning)
-        self._logger.info(f"ride planning {ride_planning.id} was persisted")
+        self._logger.info(f"New ride planning {ride_planning.id} was persisted")
 
-        self._notification_gateway.send(ride_planning)
-        self._logger.info(f"Ride planning {ride_planning.id} was created")
+        self._notification_gateway.notify_requested(ride_planning)
+        self._logger.info(f"Ride planning {ride_planning.id} request sent to be processed")
         return ride_planning.id
