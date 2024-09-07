@@ -3,9 +3,6 @@ from typing import TypedDict
 
 from pydantic import BaseModel, Field
 
-# TODO: importar qndo corrigirem o bug
-# from aws_lambda_powertools.utilities.parser.models import APIGatewayProxyEventV2Model
-
 
 class AddressRequest(BaseModel):
     street: str = Field(max_length=70)
@@ -21,5 +18,14 @@ class BodyRequest(BaseModel):
     user_id: str = Field(max_length=70)
 
 
+class RequestContextIdentity(BaseModel):
+    user: int
+
+
+class RequestContext(BaseModel):
+    identity: RequestContextIdentity
+
+
 class HandlerRequest(TypedDict):
     body: BodyRequest
+    requestContext: RequestContext

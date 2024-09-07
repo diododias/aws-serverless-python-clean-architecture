@@ -1,13 +1,11 @@
-import datetime
-from typing import TypedDict
+from aws_lambda_powertools.utilities.parser.models import APIGatewayProxyEventModel
 
-from pydantic import BaseModel, Field
-
-
-class BodyRequest(BaseModel):
-    ride_planning_id: str = Field(max_length=41)
-    user_id: str = Field(max_length=41)
+from pydantic import BaseModel
 
 
-class HandlerRequest(TypedDict):
-    body: BodyRequest
+class PathParameters(BaseModel):
+    ride_planning_id: str
+
+
+class HandlerRequest(APIGatewayProxyEventModel):
+    pathParameters: PathParameters

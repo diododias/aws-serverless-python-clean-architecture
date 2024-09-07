@@ -7,7 +7,7 @@ from request_ride_planning.domain.value_objects.ride_option_id import RideOption
 
 
 @dataclass
-class RideOption:
+class RideOptionEntity:
     id: RideOptionId
     provider_id: str
     provider: RideProviderEnum

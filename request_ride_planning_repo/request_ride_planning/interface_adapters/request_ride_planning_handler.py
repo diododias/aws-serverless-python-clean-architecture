@@ -3,6 +3,7 @@ import json
 from aws_lambda_powertools import Logger
 from aws_lambda_powertools.utilities.parser import parse
 from aws_lambda_powertools.utilities.parser.envelopes import ApiGatewayEnvelope
+from aws_lambda_powertools.utilities.data_classes import APIGatewayProxyEvent
 from aws_lambda_powertools.utilities.typing import LambdaContext
 
 from pydantic import ValidationError
@@ -27,14 +28,17 @@ class RequestRidePlanningHandler:
         self._use_case = request_ride_planning_use_case
         self._parser = parser
 
+    @staticmethod
+    def _get_user_id(request: HandlerRequest) -> UserId:
+        return UserId(request.get("requestContext", {}).get("identity", {}).get("user"))
+
     def handle(self, request: HandlerRequest, context: LambdaContext) -> HandlerResponse:
+        self._logger.debug(f"Processing event: {request}")
         self._logger.set_correlation_id(context.aws_request_id)
         try:
             event: BodyRequest = self._parser(event=request, model=BodyRequest, envelope=ApiGatewayEnvelope)
-            self._logger.debug(f"Processing event: {event.model_dump_json()}")
-
             ride_planning_id: str = self._use_case.execute(
-                user_id=UserId(event.user_id),
+                user_id=self._get_user_id(request),
                 address_from=AddressEntity(**event.address_from.model_dump()),
                 address_to=AddressEntity(**event.address_to.model_dump()),
                 departure_datetime=event.departure_datetime

@@ -1,4 +1,4 @@
-from get_ride_planning.domain.value_objects.ride_option_id import RideOptionId
+from process_ride_planning_expiration.domain.value_objects.ride_option_id import RideOptionId
 
 
 class RideOptionNotFound(Exception):

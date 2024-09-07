@@ -3,7 +3,7 @@ from datetime import datetime, timedelta, UTC
 from typing import List
 
 from request_ride_planning.domain.entities.address_entity import AddressEntity
-from request_ride_planning.domain.entities.ride_option import RideOption
+from request_ride_planning.domain.entities.ride_option_entity import RideOptionEntity
 from request_ride_planning.domain.entities.ride_planning_status_enum import RidePlanningStatusEnum
 from request_ride_planning.domain.value_objects.ride_planning_id import RidePlanningId
 from request_ride_planning.domain.value_objects.user_id import UserId
@@ -22,7 +22,7 @@ class RidePlanningEntity:
     created_at: datetime
     modified_at: datetime
     status: RidePlanningStatusEnum
-    ride_options: List[RideOption] = field(default_factory=list)
+    ride_options: List[RideOptionEntity] = field(default_factory=list)
 
     @property
     def is_time_expired(self) -> bool:

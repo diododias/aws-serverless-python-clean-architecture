@@ -27,7 +27,7 @@ class RidePlanningSnsNotificationGateway(RidePlanningNotificationGatewayInterfac
         self._topic_arn = topic_arn
 
     def _send(self, event: BaseEvent) -> str:
-        self._logger.debug(f"notifying event: {event}")
+        self._logger.debug(f"notifying event: {json.dumps(event)}")
         response = self._sns_client.publish(
             TopicArn=self._topic_arn,
             Message=json.dumps(dataclasses.asdict(event), default=str),

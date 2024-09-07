@@ -10,7 +10,7 @@ from get_ride_planning.domain.entities.ride_planning_entity import RidePlanningE
 from get_ride_planning.domain.entities.ride_planning_status_enum import RidePlanningStatusEnum
 from get_ride_planning.domain.events.ride_planning_waiting_for_expiration_event import \
     RidePlanningWaitingForExpirationEvent
-from get_ride_planning.drivers_adapters.ride_planning_sns_mapper import \
+from get_ride_planning.drivers_adapters.mappers.ride_planning_sns_mapper import \
     map_ride_planning_to_waiting_for_expiration_event
 
 SnsClient = NewType("SnsClient", object)
@@ -33,9 +33,13 @@ class RidePlanningSnsNotificationGateway(RidePlanningNotificationGatewayInterfac
             TopicArn=self._topic_arn,
             Message=json.dumps(dataclasses.asdict(event), default=str),
             MessageAttributes={
-                "ride_planning": {
+                "source": {
                     "DataType": "String",
-                    "StringValue": RidePlanningStatusEnum.WAITING_FOR_EXPIRATION,
+                    "StringValue": event.source,
+                },
+                "event_name": {
+                    "DataType": "String",
+                    "StringValue": event.name,
                 }
             }
         )
