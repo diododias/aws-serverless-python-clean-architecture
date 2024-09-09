@@ -1,3 +1,0 @@
-
-class RideOptionId(int):
-    pass

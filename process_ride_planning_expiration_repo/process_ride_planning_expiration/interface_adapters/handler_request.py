@@ -1,4 +1,6 @@
-from aws_lambda_powertools.utilities.parser.models import SqsRecordModel
+from datetime import datetime
+
+from aws_lambda_powertools.utilities.parser.models import SnsNotificationModel, SqsRecordModel
 from aws_lambda_powertools.utilities.parser.types import Json
 
 
@@ -13,7 +15,13 @@ class ExpirationPayload(BaseModel):
 class RidePlanningWaitingForExpirationEvent(BaseModel):
     data: ExpirationPayload
     name: str
+    source: str
+    spec_version: str
+    data_content_type: str
+    event_id: str
+    time: datetime
 
 
-class SqsWaitingForExpirationRecord(SqsRecordModel):
-    body: Json[RidePlanningWaitingForExpirationEvent]
+class SnsWaitingForExpirationMessage(SnsNotificationModel):
+    Message: Json[RidePlanningWaitingForExpirationEvent]
+

@@ -23,4 +23,4 @@ class RequestedPayload(EventData):
 @dataclass
 class RidePlanningRequestedEvent(BaseEvent):
     data: RequestedPayload
-    name = "RidePlanningRequestedEvent"
+    name: str = "RidePlanningRequestedEvent"

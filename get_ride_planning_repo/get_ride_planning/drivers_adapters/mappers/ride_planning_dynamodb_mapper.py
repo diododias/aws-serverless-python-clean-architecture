@@ -35,5 +35,5 @@ def map_persistence_schema_to_ride_planning(ride_planning_dto: Dict[str, str | D
         departure_datetime=datetime.fromisoformat(ride_planning_dto.get("departure_datetime")),
         created_at=datetime.fromisoformat(ride_planning_dto.get("created_at")),
         modified_at=datetime.fromisoformat(ride_planning_dto.get("modified_at")),
-        status=RidePlanningStatusEnum[ride_planning_dto.get("status")]
+        status=RidePlanningStatusEnum[ride_planning_dto.get("ride_status")]
     )

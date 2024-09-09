@@ -27,7 +27,7 @@ class RidePlanningDynamodbPersistenceGateway(RidePlanningPersistenceGatewayInter
                 str(PRIMARY_KEY): ride_planning.user_id,
                 str(SORT_KEY): ride_planning.id
             },
-            UpdateExpression="set status = :s, modified_at = :m",
+            UpdateExpression="set ride_status = :s, modified_at = :m",
             ExpressionAttributeValues={
                 ":s": ride_planning.status.value,
                 ":m": ride_planning.modified_at.isoformat()

@@ -14,4 +14,4 @@ class ExpirationPayload(EventData):
 @dataclass
 class RidePlanningWaitingForExpirationEvent(BaseEvent):
     data: ExpirationPayload
-    name = "RidePlanningWaitingForExpirationEvent"
+    name: str = "RidePlanningWaitingForExpirationEvent"

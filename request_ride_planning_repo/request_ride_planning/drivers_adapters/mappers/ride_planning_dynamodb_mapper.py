@@ -24,7 +24,7 @@ def map_ride_planning_to_persistence_schema(
     ride_planning_item["ride_properties_hash"] = f"{synthetic_id}#CREATED_AT#{datetime.now().isoformat()}"
     ride_planning_item["address_from"] = json.dumps(ride_planning.address_from.__dict__)
     ride_planning_item["address_to"] = json.dumps(ride_planning.address_to.__dict__)
-    ride_planning_item["status"] = ride_planning.status.value
+    ride_planning_item["ride_status"] = ride_planning.status.value
     ride_planning_item["departure_datetime"] = ride_planning.departure_datetime.isoformat()
     ride_planning_item["created_at"] = ride_planning.created_at.strftime(DATETIME_FORMAT)
     ride_planning_item["modified_at"] = ride_planning.modified_at.strftime(DATETIME_FORMAT)
@@ -55,5 +55,5 @@ def map_persistence_schema_to_ride_planning(ride_planning_dto: Dict[str, str | D
         departure_datetime=datetime.fromisoformat(ride_planning_dto.get("departure_datetime")),
         created_at=datetime.fromisoformat(ride_planning_dto.get("created_at")),
         modified_at=datetime.fromisoformat(ride_planning_dto.get("modified_at")),
-        status=RidePlanningStatusEnum[ride_planning_dto.get("status")]
+        status=RidePlanningStatusEnum[ride_planning_dto.get("ride_status")]
     )

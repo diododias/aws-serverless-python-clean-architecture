@@ -3,7 +3,6 @@ import json
 from aws_lambda_powertools import Logger
 from aws_lambda_powertools.utilities.parser import parse
 from aws_lambda_powertools.utilities.parser.envelopes import ApiGatewayEnvelope
-from aws_lambda_powertools.utilities.data_classes import APIGatewayProxyEvent
 from aws_lambda_powertools.utilities.typing import LambdaContext
 
 from pydantic import ValidationError

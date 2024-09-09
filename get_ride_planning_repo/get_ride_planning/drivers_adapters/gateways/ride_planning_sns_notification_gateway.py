@@ -7,7 +7,6 @@ from aws_lambda_powertools import Logger
 from get_ride_planning.application.ride_planning_notification_gateway_interface import \
     RidePlanningNotificationGatewayInterface
 from get_ride_planning.domain.entities.ride_planning_entity import RidePlanningEntity
-from get_ride_planning.domain.entities.ride_planning_status_enum import RidePlanningStatusEnum
 from get_ride_planning.domain.events.ride_planning_waiting_for_expiration_event import \
     RidePlanningWaitingForExpirationEvent
 from get_ride_planning.drivers_adapters.mappers.ride_planning_sns_mapper import \

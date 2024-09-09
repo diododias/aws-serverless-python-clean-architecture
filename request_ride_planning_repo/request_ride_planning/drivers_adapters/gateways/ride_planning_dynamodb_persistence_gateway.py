@@ -14,7 +14,7 @@ from request_ride_planning.domain.entities.ride_planning_entity import RidePlann
 from request_ride_planning.domain.value_objects.ride_planning_id import RidePlanningId
 from request_ride_planning.domain.value_objects.user_id import UserId
 from request_ride_planning.drivers_adapters.dynamodb_constants import RIDE_PROPERTIES_HASH, PRIMARY_KEY, SORT_KEY
-from request_ride_planning.drivers_adapters.ride_planning_dynamodb_mapper import (
+from request_ride_planning.drivers_adapters.mappers.ride_planning_dynamodb_mapper import (
     map_ride_planning_to_persistence_schema,
     map_persistence_schema_to_ride_planning)
 

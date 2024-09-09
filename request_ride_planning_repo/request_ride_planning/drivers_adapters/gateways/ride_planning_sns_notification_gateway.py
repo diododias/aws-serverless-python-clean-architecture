@@ -10,7 +10,7 @@ from request_ride_planning.domain.events.base_event import BaseEvent
 from request_ride_planning.domain.events.ride_planning_requested_event import RidePlanningRequestedEvent
 from request_ride_planning.domain.events.ride_planning_waiting_for_expiration_event import \
     RidePlanningWaitingForExpirationEvent
-from request_ride_planning.drivers_adapters.ride_planning_sns_mapper import \
+from request_ride_planning.drivers_adapters.mappers.ride_planning_sns_mapper import \
     map_ride_planning_to_waiting_for_expiration_event, map_ride_planning_to_requested_event
 
 SnsClient = NewType("SnsClient", object)
@@ -27,7 +27,7 @@ class RidePlanningSnsNotificationGateway(RidePlanningNotificationGatewayInterfac
         self._topic_arn = topic_arn
 
     def _send(self, event: BaseEvent) -> str:
-        self._logger.debug(f"notifying event: {json.dumps(event)}")
+        self._logger.debug(f"notifying event: {dataclasses.asdict(event)}")
         response = self._sns_client.publish(
             TopicArn=self._topic_arn,
             Message=json.dumps(dataclasses.asdict(event), default=str),
