@@ -6,12 +6,12 @@ from process_ride_planning_expiration.domain.value_objects.user_id import UserId
 
 
 @dataclass
-class ExpirationPayload(EventData):
+class ExpirationData(EventData):
     user_id: UserId
     ride_planning_id: RidePlanningId
 
 
 @dataclass
 class RidePlanningExpiredEvent(BaseEvent):
-    data: ExpirationPayload
+    data: ExpirationData
     name: str = "RidePlanningExpiredEvent"

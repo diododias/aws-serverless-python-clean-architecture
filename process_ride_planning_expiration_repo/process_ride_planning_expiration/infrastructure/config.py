@@ -8,16 +8,16 @@ from aws_lambda_powertools.utilities.batch import BatchProcessor, EventType
 
 from process_ride_planning_expiration.application.process_ride_planning_expiration_use_case_impl import \
     ProcessRidePlanningExpirationUseCaseImpl
-from process_ride_planning_expiration.application.ride_planning_notification_gateway_interface import \
-    RidePlanningNotificationGatewayInterface
-from process_ride_planning_expiration.application.ride_planning_persistence_gateway_interface import \
-    RidePlanningPersistenceGatewayInterface
+from process_ride_planning_expiration.application.notification_gateway_interface import \
+    NotificationGatewayInterface
+from process_ride_planning_expiration.application.persistence_gateway_interface import \
+    PersistenceGatewayInterface
 from process_ride_planning_expiration.domain.use_cases.process_ride_planning_expiration_use_case_interface import \
     ProcessRidePlanningExpirationUseCaseInterface
-from process_ride_planning_expiration.drivers_adapters.gateways.ride_planning_dynamodb_persistence_gateway import \
-    DynamodbResourceTable, RidePlanningDynamodbPersistenceGateway
-from process_ride_planning_expiration.drivers_adapters.gateways.ride_planning_sns_notification_gateway import TopicArn,\
-    SnsClient, RidePlanningSnsNotificationGateway
+from process_ride_planning_expiration.drivers_adapters.gateways.dynamodb_persistence_gateway import \
+    DynamodbResourceTable, DynamodbPersistenceGateway
+from process_ride_planning_expiration.drivers_adapters.gateways.sns_notification_gateway import TopicArn,\
+    SnsClient, SnsNotificationGateway
 from process_ride_planning_expiration.interface_adapters.process_ride_planning_expiration_handler import \
     ProcessRidePlanningExpirationHandler
 
@@ -37,11 +37,10 @@ def start_app() -> ProcessRidePlanningExpirationHandler:
     container[DynamodbResourceTable] = Singleton(lambda c: dynamodb_resource.Table(table_name))
 
     # SET INTERFACE IMPLEMENTATIONS
-    container[RidePlanningPersistenceGatewayInterface] = RidePlanningDynamodbPersistenceGateway
-    container[RidePlanningNotificationGatewayInterface] = RidePlanningSnsNotificationGateway
+    container[PersistenceGatewayInterface] = DynamodbPersistenceGateway
+    container[NotificationGatewayInterface] = SnsNotificationGateway
     container[ProcessRidePlanningExpirationUseCaseInterface] = ProcessRidePlanningExpirationUseCaseImpl
 
     # HANDLER
-    container[parse] = Singleton(lambda c: parse)
     container[BatchProcessor] = Singleton(lambda c: BatchProcessor(event_type=EventType.SQS))
     return container[ProcessRidePlanningExpirationHandler]

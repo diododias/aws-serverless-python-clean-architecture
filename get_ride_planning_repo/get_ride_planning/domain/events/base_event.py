@@ -12,8 +12,9 @@ class EventData:
 class BaseEvent:
     source: str
     data: EventData
+    correlation_id: str
     name: str
     spec_version: str = "1.0"
     data_content_type: str = "application/json"
     event_id: str = field(default_factory=uuid.uuid4)
-    time: datetime = field(default=datetime.now(UTC))
+    time: datetime = field(default=lambda x: datetime.now(UTC))

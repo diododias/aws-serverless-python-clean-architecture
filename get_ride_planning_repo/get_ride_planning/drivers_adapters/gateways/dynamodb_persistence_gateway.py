@@ -1,8 +1,7 @@
-from typing import NewType
+from typing import NewType, Optional
 from aws_lambda_powertools import Logger
 
-from get_ride_planning.application.ride_planning_persistence_gateway_interface import \
-    RidePlanningPersistenceGatewayInterface
+from get_ride_planning.application.persistence_gateway_interface import PersistenceGatewayInterface
 from get_ride_planning.domain.entities.ride_planning_entity import RidePlanningEntity
 from get_ride_planning.domain.value_objects.ride_planning_id import RidePlanningId
 from get_ride_planning.domain.value_objects.user_id import UserId
@@ -12,14 +11,14 @@ from get_ride_planning.drivers_adapters.mappers.ride_planning_dynamodb_mapper im
 DynamodbResourceTable = NewType("DynamodbResourceTable", object)
 
 
-class RidePlanningDynamodbPersistenceGateway(RidePlanningPersistenceGatewayInterface):
+class DynamodbPersistenceGateway(PersistenceGatewayInterface):
     _dynamodb_resource_table: DynamodbResourceTable
     _logger = Logger(child=True)
 
     def __init__(self, dynamodb_resource_table: DynamodbResourceTable):
         self._dynamodb_resource_table = dynamodb_resource_table
 
-    def find_by_id_and_user_id(self, user_id: UserId, ride_planning_id: RidePlanningId) -> RidePlanningEntity | None:
+    def find_by_id_and_user_id(self, user_id: UserId, ride_planning_id: RidePlanningId) -> Optional[RidePlanningEntity]:
         item = self._dynamodb_resource_table.get_item(
             Key={
                 str(PRIMARY_KEY): user_id,

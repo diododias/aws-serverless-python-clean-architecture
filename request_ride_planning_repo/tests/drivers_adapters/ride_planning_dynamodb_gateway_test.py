@@ -4,14 +4,14 @@ from datetime import datetime, UTC
 import uuid
 from unittest import mock
 
-from request_ride_planning.application.ride_planning_persistence_gateway_interface import RidePlanningPersistenceGatewayInterface
+from request_ride_planning.application.persistence_gateway_interface import PersistenceGatewayInterface
 from request_ride_planning.domain.entities.address_entity import AddressEntity
 from request_ride_planning.domain.entities.ride_planning_entity import RidePlanningEntity
 from request_ride_planning.domain.entities.ride_planning_status_enum import RidePlanningStatusEnum
 from request_ride_planning.domain.value_objects.ride_planning_id import RidePlanningId
 from request_ride_planning.domain.value_objects.user_id import UserId
 from request_ride_planning.drivers_adapters.dynamodb_constants import PRIMARY_KEY, SORT_KEY
-from request_ride_planning.drivers_adapters.gateways.ride_planning_dynamodb_persistence_gateway import RidePlanningDynamodbPersistenceGateway
+from request_ride_planning.drivers_adapters.gateways.dynamodb_persistence_gateway import DynamodbPersistenceGateway
 
 
 class TestRideDynamodbGateway:
@@ -33,7 +33,7 @@ class TestRideDynamodbGateway:
         "departure_datetime": "2024-12-01 05:33:20+00:00",
         "created_at": "2024-08-30 01:38:09+00:00",
         "modified_at": "2024-08-30 01:38:09+00:00",
-        "status": "REQUESTED",
+        "ride_status": "REQUESTED",
         "ride_options": []
     }
     ride_planning_mock = RidePlanningEntity(
@@ -52,8 +52,8 @@ class TestRideDynamodbGateway:
         dynamodb_resource_table_mock = mock.Mock()
         dynamodb_resource_table_mock.put_item = mock.Mock()
 
-        persistence_gateway: RidePlanningPersistenceGatewayInterface = (
-            RidePlanningDynamodbPersistenceGateway(dynamodb_resource_table_mock))
+        persistence_gateway: PersistenceGatewayInterface = (
+            DynamodbPersistenceGateway(dynamodb_resource_table_mock))
 
         # act
         ride_planning_id = persistence_gateway.save(self.ride_planning_mock)
@@ -67,8 +67,8 @@ class TestRideDynamodbGateway:
         dynamodb_resource_table_mock = mock.Mock()
         dynamodb_resource_table_mock.query = mock.Mock(return_value=dict())
 
-        persistence_gateway: RidePlanningPersistenceGatewayInterface = (
-            RidePlanningDynamodbPersistenceGateway(dynamodb_resource_table_mock))
+        persistence_gateway: PersistenceGatewayInterface = (
+            DynamodbPersistenceGateway(dynamodb_resource_table_mock))
 
         # act
         ride_planning_id = persistence_gateway.find_latest_by_user_id_and_ride_attributes(
@@ -96,8 +96,8 @@ class TestRideDynamodbGateway:
         dynamodb_resource_table_mock = mock.Mock()
         dynamodb_resource_table_mock.query = mock.Mock(return_value=item_mock)
 
-        persistence_gateway: RidePlanningPersistenceGatewayInterface = (
-            RidePlanningDynamodbPersistenceGateway(dynamodb_resource_table_mock))
+        persistence_gateway: PersistenceGatewayInterface = (
+            DynamodbPersistenceGateway(dynamodb_resource_table_mock))
 
         # act
         ride_planning: RidePlanningEntity = persistence_gateway.find_latest_by_user_id_and_ride_attributes(
@@ -110,7 +110,7 @@ class TestRideDynamodbGateway:
         # assert
         assert ride_planning.id == self.user_payload.get("id")
         assert ride_planning.user_id == self.user_payload.get("user_id")
-        assert ride_planning.status == RidePlanningStatusEnum[self.user_payload.get("status")]
+        assert ride_planning.status == RidePlanningStatusEnum[self.user_payload.get("ride_status")]
         assert ride_planning.modified_at == datetime.fromisoformat(self.user_payload.get("modified_at"))
         assert ride_planning.created_at == datetime.fromisoformat(self.user_payload.get("created_at"))
         assert isinstance(ride_planning, RidePlanningEntity)

@@ -12,7 +12,8 @@ class EventData:
 class BaseEvent:
     source: str
     data: EventData
-    name: str = "base_event"
+    correlation_id: str
+    name: str
     spec_version: str = "1.0"
     data_content_type: str = "application/json"
     event_id: str = field(default_factory=uuid.uuid4)

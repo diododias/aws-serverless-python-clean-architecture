@@ -4,11 +4,11 @@ import uuid
 from datetime import datetime, UTC
 from aws_lambda_powertools import Logger
 
-from request_ride_planning.application.ride_planning_notification_gateway_interface import (
-    RidePlanningNotificationGatewayInterface)
-from request_ride_planning.application.ride_planning_persistence_gateway_interface import (
-    RidePlanningPersistenceGatewayInterface)
-from request_ride_planning.application.too_many_requests_error import TooManyRequestsError
+from request_ride_planning.application.notification_gateway_interface import (
+    NotificationGatewayInterface)
+from request_ride_planning.application.persistence_gateway_interface import (
+    PersistenceGatewayInterface)
+from request_ride_planning.application.too_many_requests_exception import TooManyRequestsException
 from request_ride_planning.domain.entities.address_entity import AddressEntity
 from request_ride_planning.domain.entities.ride_planning_entity import RidePlanningEntity
 from request_ride_planning.domain.entities.ride_planning_status_enum import RidePlanningStatusEnum
@@ -19,13 +19,13 @@ from request_ride_planning.domain.value_objects.user_id import UserId
 
 
 class RequestRidePlanningUseCaseImpl(RequestRidePlanningUseCaseInterface):
-    _persistence_gateway: RidePlanningPersistenceGatewayInterface
-    _notification_gateway: RidePlanningNotificationGatewayInterface
+    _persistence_gateway: PersistenceGatewayInterface
+    _notification_gateway: NotificationGatewayInterface
     _logger = Logger(child=True)
 
     def __init__(self,
-                 persistence_gateway: RidePlanningPersistenceGatewayInterface,
-                 notification_gateway: RidePlanningNotificationGatewayInterface):
+                 persistence_gateway: PersistenceGatewayInterface,
+                 notification_gateway: NotificationGatewayInterface):
         self._persistence_gateway = persistence_gateway
         self._notification_gateway = notification_gateway
 
@@ -33,21 +33,6 @@ class RequestRidePlanningUseCaseImpl(RequestRidePlanningUseCaseInterface):
                   address_from: AddressEntity,
                   address_to: AddressEntity,
                   departure_datetime: datetime) -> None:
-        """
-        Checks if exists a ride planning with the same attributes in the processing stage.
-        Only one ride can be requested at a time.
-
-        Args:
-            user_id: User ID
-            address_from: start point of a ride
-            address_to: end point of a ride
-            departure_datetime: date and time to start a ride
-
-        Returns: None
-
-        Raises:
-            TooManyRequestsException
-        """
         rp: RidePlanningEntity = self._persistence_gateway.find_latest_by_user_id_and_ride_attributes(
             user_id,
             address_from,
@@ -61,7 +46,7 @@ class RequestRidePlanningUseCaseImpl(RequestRidePlanningUseCaseInterface):
             self._notification_gateway.notify_waiting_for_expiration(rp)
             self._logger.info(f"Found Ride Planning id {rp.id} entering expiration state")
         if not rp.is_completed:
-            raise TooManyRequestsError(rp)
+            raise TooManyRequestsException(rp)
         self._logger.info(f"User id {user_id} can request a new Ride Planning")
 
     def execute(self,
@@ -69,17 +54,6 @@ class RequestRidePlanningUseCaseImpl(RequestRidePlanningUseCaseInterface):
                 address_from: AddressEntity,
                 address_to: AddressEntity,
                 departure_datetime: datetime) -> RidePlanningId:
-        """
-        Request a new Ride Planning to be processed
-
-        Args:
-            user_id: User ID
-            address_from: start point of a ride
-            address_to: end point of a ride
-            departure_datetime: date and time to start a ride
-
-        Returns: RidePlanningId of a new ride planning request
-        """
         self._validate(
             user_id,
             address_from,

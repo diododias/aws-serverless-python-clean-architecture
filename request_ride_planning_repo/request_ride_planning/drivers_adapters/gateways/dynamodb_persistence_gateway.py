@@ -3,12 +3,12 @@ import hashlib
 import json
 
 from datetime import datetime
-from typing import NewType
+from typing import NewType, Optional
 from boto3.dynamodb.conditions import Key
 from aws_lambda_powertools import Logger
 
-from request_ride_planning.application.ride_planning_persistence_gateway_interface import (
-    RidePlanningPersistenceGatewayInterface)
+from request_ride_planning.application.persistence_gateway_interface import (
+    PersistenceGatewayInterface)
 from request_ride_planning.domain.entities.address_entity import AddressEntity
 from request_ride_planning.domain.entities.ride_planning_entity import RidePlanningEntity
 from request_ride_planning.domain.value_objects.ride_planning_id import RidePlanningId
@@ -21,7 +21,7 @@ from request_ride_planning.drivers_adapters.mappers.ride_planning_dynamodb_mappe
 DynamodbResourceTable = NewType("DynamodbResourceTable", object)
 
 
-class RidePlanningDynamodbPersistenceGateway(RidePlanningPersistenceGatewayInterface):
+class DynamodbPersistenceGateway(PersistenceGatewayInterface):
     _dynamodb_resource_table: DynamodbResourceTable
     _logger = Logger(child=True)
 
@@ -71,7 +71,7 @@ class RidePlanningDynamodbPersistenceGateway(RidePlanningPersistenceGatewayInter
                                                    address_from: AddressEntity,
                                                    address_to: AddressEntity,
                                                    departure_datetime: datetime
-                                                   ) -> RidePlanningEntity | None:
+                                                   ) -> Optional[RidePlanningEntity]:
         """
         Find latest Ride Planning that have same ride attributes
 
@@ -96,4 +96,3 @@ class RidePlanningDynamodbPersistenceGateway(RidePlanningPersistenceGatewayInter
             ride = response.get("Items")[0]
             self._logger.debug(f"Found item: {ride}")
             return map_persistence_schema_to_ride_planning(ride)
-        return None

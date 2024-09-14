@@ -4,8 +4,7 @@ from typing import NewType
 
 from aws_lambda_powertools import Logger
 
-from get_ride_planning.application.ride_planning_notification_gateway_interface import \
-    RidePlanningNotificationGatewayInterface
+from get_ride_planning.application.notification_gateway_interface import NotificationGatewayInterface
 from get_ride_planning.domain.entities.ride_planning_entity import RidePlanningEntity
 from get_ride_planning.domain.events.ride_planning_waiting_for_expiration_event import \
     RidePlanningWaitingForExpirationEvent
@@ -16,7 +15,7 @@ SnsClient = NewType("SnsClient", object)
 TopicArn = NewType("TopicArn", object)
 
 
-class RidePlanningSnsNotificationGateway(RidePlanningNotificationGatewayInterface):
+class SnsNotificationGateway(NotificationGatewayInterface):
     _sns_client: SnsClient
     _topic_arn: TopicArn
     _logger: Logger = Logger(child=True)
@@ -25,7 +24,7 @@ class RidePlanningSnsNotificationGateway(RidePlanningNotificationGatewayInterfac
         self._sns_client = sns_client
         self._topic_arn = topic_arn
 
-    def notify_waiting_for_expiration(self, ride_planning: RidePlanningEntity):
+    def notify_waiting_for_expiration(self, ride_planning: RidePlanningEntity) -> str:
         self._logger.debug(f"notifying ride planning {ride_planning.id} is waiting for expiration")
         event: RidePlanningWaitingForExpirationEvent = map_ride_planning_to_waiting_for_expiration_event(ride_planning)
         response = self._sns_client.publish(
@@ -42,5 +41,4 @@ class RidePlanningSnsNotificationGateway(RidePlanningNotificationGatewayInterfac
                 }
             }
         )
-        message_id = response.get("MessageId")
-        return message_id if message_id else None
+        return response.get("MessageId")

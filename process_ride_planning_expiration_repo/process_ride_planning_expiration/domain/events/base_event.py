@@ -12,6 +12,7 @@ class EventData:
 class BaseEvent:
     source: str
     data: EventData
+    correlation_id: str
     name: str
     spec_version: str = "1.0"
     data_content_type: str = "application/json"

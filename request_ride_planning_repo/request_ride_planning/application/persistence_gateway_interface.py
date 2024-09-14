@@ -1,5 +1,6 @@
 from abc import ABCMeta, abstractmethod
 from datetime import datetime
+from typing import Optional
 
 from request_ride_planning.domain.entities.address_entity import AddressEntity
 from request_ride_planning.domain.entities.ride_planning_entity import RidePlanningEntity
@@ -7,7 +8,7 @@ from request_ride_planning.domain.value_objects.ride_planning_id import RidePlan
 from request_ride_planning.domain.value_objects.user_id import UserId
 
 
-class RidePlanningPersistenceGatewayInterface(metaclass=ABCMeta):
+class PersistenceGatewayInterface(metaclass=ABCMeta):
     @abstractmethod
     def save(self, ride_planning: RidePlanningEntity) -> RidePlanningId:
         raise NotImplementedError()
@@ -18,5 +19,5 @@ class RidePlanningPersistenceGatewayInterface(metaclass=ABCMeta):
                                                    address_from: AddressEntity,
                                                    address_to: AddressEntity,
                                                    departure_datetime: datetime
-                                                   ) -> RidePlanningEntity | None:
+                                                   ) -> Optional[RidePlanningEntity]:
         raise NotImplementedError()

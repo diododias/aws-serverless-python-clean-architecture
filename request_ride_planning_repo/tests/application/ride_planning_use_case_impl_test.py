@@ -6,11 +6,11 @@ from unittest import mock
 import pytest
 
 from request_ride_planning.application.request_ride_planning_use_case_impl import RequestRidePlanningUseCaseImpl
-from request_ride_planning.application.ride_planning_notification_gateway_interface import \
-    RidePlanningNotificationGatewayInterface
-from request_ride_planning.application.ride_planning_persistence_gateway_interface import \
-    RidePlanningPersistenceGatewayInterface
-from request_ride_planning.application.too_many_requests_error import TooManyRequestsError
+from request_ride_planning.application.notification_gateway_interface import \
+    NotificationGatewayInterface
+from request_ride_planning.application.persistence_gateway_interface import \
+    PersistenceGatewayInterface
+from request_ride_planning.application.too_many_requests_exception import TooManyRequestsException
 from request_ride_planning.domain.entities.address_entity import AddressEntity
 from request_ride_planning.domain.entities.ride_planning_entity import RidePlanningEntity
 from request_ride_planning.domain.entities.ride_planning_status_enum import RidePlanningStatusEnum
@@ -55,10 +55,10 @@ class TestRidePlanningUseCaseImpl:
 
     def test_return_ride_planning_id_when_execute_successfull(self):
         # arrange
-        notification_gateway_mock = mock.Mock(spec=RidePlanningNotificationGatewayInterface)
+        notification_gateway_mock = mock.Mock(spec=NotificationGatewayInterface)
         notification_gateway_mock.send = mock.Mock()
 
-        persistence_gateway_mock = mock.Mock(spec=RidePlanningPersistenceGatewayInterface)
+        persistence_gateway_mock = mock.Mock(spec=PersistenceGatewayInterface)
         persistence_gateway_mock.save = mock.Mock()
         # has no one ride planning in execution state
         persistence_gateway_mock.get_latest_by_user_id_ride_attributes = mock.Mock(return_value=None)
@@ -82,10 +82,10 @@ class TestRidePlanningUseCaseImpl:
 
     def test_explode_too_many_requests_exception_when_has_ride_planning_executing(self):
         # arrange
-        notification_gateway_mock = mock.Mock(spec=RidePlanningNotificationGatewayInterface)
+        notification_gateway_mock = mock.Mock(spec=NotificationGatewayInterface)
         notification_gateway_mock.send = mock.Mock()
 
-        persistence_gateway_mock = mock.Mock(spec=RidePlanningPersistenceGatewayInterface)
+        persistence_gateway_mock = mock.Mock(spec=PersistenceGatewayInterface)
         persistence_gateway_mock.save = mock.Mock()
         # return ride planning in execution state
         persistence_gateway_mock.find_latest_by_user_id_and_ride_attributes = mock.Mock(return_value=self.ride_planning_mock)
@@ -94,7 +94,7 @@ class TestRidePlanningUseCaseImpl:
             RequestRidePlanningUseCaseImpl(persistence_gateway_mock, notification_gateway_mock))
 
         # act
-        with pytest.raises(TooManyRequestsError):
+        with pytest.raises(TooManyRequestsException):
             use_case.execute(
                 user_id=UserId(self.mock_event.get("user_id")),
                 address_from=AddressEntity(**self.mock_event.get("address_from")),
@@ -109,10 +109,10 @@ class TestRidePlanningUseCaseImpl:
 
     def test_return_ride_planning_id_when_latest_ride_planning_is_done(self):
         # arrange
-        notification_gateway_mock = mock.Mock(spec=RidePlanningNotificationGatewayInterface)
+        notification_gateway_mock = mock.Mock(spec=NotificationGatewayInterface)
         notification_gateway_mock.send = mock.Mock()
 
-        persistence_gateway_mock = mock.Mock(spec=RidePlanningPersistenceGatewayInterface)
+        persistence_gateway_mock = mock.Mock(spec=PersistenceGatewayInterface)
         persistence_gateway_mock.save = mock.Mock()
         # ride planning in execution done state
         rp_mock = copy.copy(self.ride_planning_mock)

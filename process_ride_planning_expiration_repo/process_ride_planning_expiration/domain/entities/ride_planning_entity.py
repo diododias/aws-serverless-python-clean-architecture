@@ -5,7 +5,7 @@ from typing import List
 from process_ride_planning_expiration.domain.entities.address_entity import AddressEntity
 from process_ride_planning_expiration.domain.entities.ride_option_entity import RideOptionEntity
 from process_ride_planning_expiration.domain.entities.ride_planning_status_enum import RidePlanningStatusEnum
-from process_ride_planning_expiration.domain.exceptions.invalid_state import InvalidState
+from process_ride_planning_expiration.domain.exceptions.invalid_state_exception import InvalidStateException
 from process_ride_planning_expiration.domain.value_objects.ride_planning_id import RidePlanningId
 from process_ride_planning_expiration.domain.value_objects.user_id import UserId
 
@@ -43,4 +43,4 @@ class RidePlanningEntity:
             self.status = RidePlanningStatusEnum.EXPIRED
             self.modified_at = datetime.now(UTC)
         else:
-            raise InvalidState("RidePlanning must be in expiration phase to set expiration status")
+            raise InvalidStateException(f"RidePlanning in {self.status.value} status must be in waiting for expiration phase to set expiration status")

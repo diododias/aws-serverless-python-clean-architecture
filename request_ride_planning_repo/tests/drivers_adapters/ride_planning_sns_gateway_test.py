@@ -2,13 +2,13 @@ from datetime import datetime, UTC
 import uuid
 from unittest import mock
 
-from request_ride_planning.application.ride_planning_notification_gateway_interface import RidePlanningNotificationGatewayInterface
+from request_ride_planning.application.notification_gateway_interface import NotificationGatewayInterface
 from request_ride_planning.domain.entities.address_entity import AddressEntity
 from request_ride_planning.domain.entities.ride_planning_entity import RidePlanningEntity
 from request_ride_planning.domain.entities.ride_planning_status_enum import RidePlanningStatusEnum
 from request_ride_planning.domain.value_objects.ride_planning_id import RidePlanningId
 from request_ride_planning.domain.value_objects.user_id import UserId
-from request_ride_planning.drivers_adapters.gateways.ride_planning_sns_notification_gateway import RidePlanningSnsNotificationGateway
+from request_ride_planning.drivers_adapters.gateways.sns_notification_gateway import SnsNotificationGateway
 
 
 class TestRidePlanningSnsGateway:
@@ -47,8 +47,8 @@ class TestRidePlanningSnsGateway:
         sns_client_mock.publish = mock.Mock(return_value={"MessageId": fake_message_id})
         sns_topic_arn = "FAKE-TOPIC-ARN"
 
-        notification_gateway: RidePlanningNotificationGatewayInterface = (
-            RidePlanningSnsNotificationGateway(sns_client_mock, sns_topic_arn))
+        notification_gateway: NotificationGatewayInterface = (
+            SnsNotificationGateway(sns_client_mock, sns_topic_arn))
 
         # act
         response = notification_gateway.notify_requested(self.ride_planning_mock)
