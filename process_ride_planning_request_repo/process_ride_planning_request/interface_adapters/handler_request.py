@@ -7,14 +7,14 @@ from aws_lambda_powertools.utilities.parser.types import Json
 from pydantic import BaseModel
 
 
-class WaitingForExpirationEventSchema(BaseModel):
+class RequestedEventSchema(BaseModel):
     user_id: str
     ride_planning_id: str
 
 
 class MessageSchema(BaseModel):
-    data: WaitingForExpirationEventSchema
-    name: str = Literal["RidePlanningWaitingForExpirationEvent"]
+    data: RequestedEventSchema
+    name: str = Literal["RidePlanningRequestedEvent"]
     source: str
     spec_version: str
     data_content_type: str

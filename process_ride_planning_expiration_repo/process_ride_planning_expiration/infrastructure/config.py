@@ -3,7 +3,6 @@ import os
 import boto3
 from botocore.config import Config
 from lagom import Container, Singleton
-from aws_lambda_powertools.utilities.parser import parse
 from aws_lambda_powertools.utilities.batch import BatchProcessor, EventType
 
 from process_ride_planning_expiration.application.process_ride_planning_expiration_use_case_impl import \
