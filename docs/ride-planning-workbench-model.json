@@ -1,0 +1,220 @@
+{
+  "ModelName": "plan-ride-model",
+  "ModelMetadata": {
+    "Author": "Luiz Gustavo Dias",
+    "DateCreated": "Jul 29, 2024, 07:37 PM",
+    "DateLastModified": "Aug 24, 2024, 03:25 PM",
+    "Description": "",
+    "AWSService": "Amazon DynamoDB",
+    "Version": "3.0"
+  },
+  "DataModel": [
+    {
+      "TableName": "table_ride_planning",
+      "KeyAttributes": {
+        "PartitionKey": {
+          "AttributeName": "user_id",
+          "AttributeType": "S"
+        },
+        "SortKey": {
+          "AttributeName": "ride_planning_id",
+          "AttributeType": "S"
+        }
+      },
+      "NonKeyAttributes": [
+        {
+          "AttributeName": "address_from",
+          "AttributeType": "S"
+        },
+        {
+          "AttributeName": "address_to",
+          "AttributeType": "S"
+        },
+        {
+          "AttributeName": "departure_time",
+          "AttributeType": "S"
+        },
+        {
+          "AttributeName": "status",
+          "AttributeType": "S"
+        },
+        {
+          "AttributeName": "created_at",
+          "AttributeType": "S"
+        },
+        {
+          "AttributeName": "time_to_live",
+          "AttributeType": "S"
+        },
+        {
+          "AttributeName": "ride_proprierties_hash",
+          "AttributeType": "S"
+        },
+        {
+          "AttributeName": "modified_at",
+          "AttributeType": "S"
+        }
+      ],
+      "TableFacets": [
+        {
+          "FacetName": "GetRideByUserIdAndPlanRideId",
+          "KeyAttributeAlias": {
+            "PartitionKeyAlias": "user_id",
+            "SortKeyAlias": "sk_id"
+          },
+          "TableData": [],
+          "NonKeyAttributes": [
+            "address_from",
+            "address_to",
+            "departure_time",
+            "status",
+            "created_at",
+            "ride_proprierties_hash"
+          ],
+          "DataAccess": {
+            "MySql": {}
+          }
+        }
+      ],
+      "DataAccess": {
+        "MySql": {}
+      },
+      "SampleDataFormats": {
+        "plan_ride_Id": [
+          "identifiers",
+          "UUID"
+        ],
+        "user_id": [
+          "identifiers",
+          "UUID"
+        ],
+        "address_from": [
+          "identifiers",
+          "Address"
+        ],
+        "address_to": [
+          "identifiers",
+          "Address"
+        ],
+        "date_time_to_leave": [
+          "date",
+          "ISO 8601 date and time"
+        ],
+        "created_at": [
+          "date",
+          "ISO 8601 date and time"
+        ],
+        "time_to_live": [
+          "date",
+          "Epoc/Unix date format"
+        ],
+        "modified_at": [
+          "date",
+          "ISO 8601 date and time"
+        ],
+        "ride_proprierties_hash": [
+          "identifiers",
+          "UUID"
+        ],
+        "departure_time": [
+          "date",
+          "ISO 8601 date and time"
+        ],
+        "ride_planning_id": [
+          "identifiers",
+          "UUID"
+        ]
+      },
+      "BillingMode": "PROVISIONED",
+      "ProvisionedCapacitySettings": {
+        "ProvisionedThroughput": {
+          "ReadCapacityUnits": 5,
+          "WriteCapacityUnits": 5
+        },
+        "AutoScalingRead": {
+          "ScalableTargetRequest": {
+            "MinCapacity": 1,
+            "MaxCapacity": 10,
+            "ServiceRole": "AWSServiceRoleForApplicationAutoScaling_DynamoDBTable"
+          },
+          "ScalingPolicyConfiguration": {
+            "TargetValue": 70
+          }
+        },
+        "AutoScalingWrite": {
+          "ScalableTargetRequest": {
+            "MinCapacity": 1,
+            "MaxCapacity": 10,
+            "ServiceRole": "AWSServiceRoleForApplicationAutoScaling_DynamoDBTable"
+          },
+          "ScalingPolicyConfiguration": {
+            "TargetValue": 70
+          }
+        }
+      }
+    },
+    {
+      "TableName": "table_ride_planning_LSI_ride_properties_hash",
+      "KeyAttributes": {
+        "PartitionKey": {
+          "AttributeName": "user_id",
+          "AttributeType": "S"
+        },
+        "SortKey": {
+          "AttributeName": "ride_properties_hash",
+          "AttributeType": "S"
+        }
+      },
+      "NonKeyAttributes": [
+        {
+          "AttributeName": "ride_planning_id",
+          "AttributeType": "S"
+        }
+      ],
+      "DataAccess": {
+        "MySql": {}
+      },
+      "SampleDataFormats": {
+        "user_id": [
+          "identifiers",
+          "UUID"
+        ],
+        "ride_properties_hash": [
+          "identifiers",
+          "UUID"
+        ],
+        "ride_planning_id": [
+          "identifiers",
+          "UUID"
+        ]
+      },
+      "BillingMode": "PROVISIONED",
+      "ProvisionedCapacitySettings": {
+        "ProvisionedThroughput": {
+          "ReadCapacityUnits": 5,
+          "WriteCapacityUnits": 5
+        },
+        "AutoScalingRead": {
+          "ScalableTargetRequest": {
+            "MinCapacity": 1,
+            "MaxCapacity": 10,
+            "ServiceRole": "AWSServiceRoleForApplicationAutoScaling_DynamoDBTable"
+          },
+          "ScalingPolicyConfiguration": {
+            "TargetValue": 70
+          }
+        },
+        "AutoScalingWrite": {
+          "ScalableTargetRequest": {
+            "MinCapacity": 1,
+            "MaxCapacity": 10,
+            "ServiceRole": "AWSServiceRoleForApplicationAutoScaling_DynamoDBTable"
+          },
+          "ScalingPolicyConfiguration": {
+            "TargetValue": 70
+          }
+        }
+      }
+    }
+  ]
+}

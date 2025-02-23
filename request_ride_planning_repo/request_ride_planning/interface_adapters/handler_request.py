@@ -1,10 +1,7 @@
 import datetime
 from typing import TypedDict
 
-from pydantic import BaseModel, Field
-
-# TODO: importar qndo corrigirem o bug
-# from aws_lambda_powertools.utilities.parser.models import APIGatewayProxyEventV2Model
+from pydantic import BaseModel, Field, Json
 
 
 class AddressRequest(BaseModel):
@@ -14,12 +11,20 @@ class AddressRequest(BaseModel):
     postal_code: str = Field(max_length=70)
 
 
-class BodyRequest(BaseModel):
+class RequestBody(BaseModel):
     address_from: AddressRequest
     address_to: AddressRequest
     departure_datetime: datetime.datetime
-    user_id: str = Field(max_length=70)
+
+
+class RequestContextIdentity(BaseModel):
+    user: int
+
+
+class RequestContext(BaseModel):
+    identity: RequestContextIdentity
 
 
 class HandlerRequest(TypedDict):
-    body: BodyRequest
+    body: str | RequestBody  # json string
+    requestContext: RequestContext

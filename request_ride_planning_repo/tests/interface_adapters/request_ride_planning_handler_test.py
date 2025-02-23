@@ -13,7 +13,6 @@ from request_ride_planning.interface_adapters.request_ride_planning_handler impo
 
 class TestRequestRidePlanningHandler:
     event = {
-        "user_id": "cace4a159ff9f2512dd42373760608767b62855d",
         "address_from": {
           "street": "Rua Augusta, 321",
           "city": "Sao Paulo",
@@ -79,7 +78,7 @@ class TestRequestRidePlanningHandler:
           "cognitoIdentityId": None,
           "cognitoIdentityPoolId": None,
           "principalOrgId": None,
-          "user": None,
+          "user": "cace4a159ff9f2512dd42373760608767b62855d",
           "userAgent": "user-agent",
           "userArn": None,
           "clientCert": {

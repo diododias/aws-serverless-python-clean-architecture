@@ -1,0 +1,35 @@
+from aws_lambda_powertools import Logger
+
+from process_ride_planning_expiration.domain.entities.ride_planning_entity import RidePlanningEntity
+from process_ride_planning_expiration.domain.events.ride_planning_expired_event import RidePlanningExpiredEvent, \
+    ExpirationData
+from process_ride_planning_request.domain.events.ride_planning_waiting_for_approve_event import \
+    RidePlanningWaitingForApproveEvent, WaitingForApproveData
+from process_ride_planning_request.domain.events.ride_planning_waiting_for_expiration_event import \
+    RidePlanningWaitingForExpirationEvent
+
+logger: Logger = Logger(child=True)
+
+
+def map_ride_planning_to_waiting_for_expiration_event(
+        ride_planning: RidePlanningEntity) -> RidePlanningWaitingForExpirationEvent:
+    return RidePlanningWaitingForExpirationEvent(
+        data=ExpirationData(
+            ride_planning_id=ride_planning.id,
+            user_id=ride_planning.user_id
+        ),
+        source="process_ride_planning_expiration",
+        correlation_id=logger.get_correlation_id()
+    )
+
+
+def map_ride_planning_to_waiting_for_approve_event(
+        ride_planning: RidePlanningEntity) -> RidePlanningWaitingForApproveEvent:
+    return RidePlanningWaitingForApproveEvent(
+        data=WaitingForApproveData(
+            ride_planning_id=ride_planning.id,
+            user_id=ride_planning.user_id
+        ),
+        source="process_ride_planning_expiration",
+        correlation_id=logger.get_correlation_id()
+    )
