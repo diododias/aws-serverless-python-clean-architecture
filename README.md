@@ -150,7 +150,7 @@ Each of these routes is handled by an **AWS Lambda function**, which processes u
 
 ---
 
-### Backend Services
+## **Backend Services**
 
 The backend uses an event-driven architecture with:
 - **SNS (Simple Notification Service)** for broadcasting domain events.
@@ -162,18 +162,6 @@ Services:
 - **Process Ride Planning Expiration**: Processes `ride_planning_waiting_for_expiration` events, marks planning as `EXPIRED`, and emits a `ride_planning_expired` event.
 
 ---
-
-# Events Life Cycle
-
-![Events Life Cycle](/docs/ride-planning-life-cicle.png)
-
-1. `ride_planning_requested`: When a ride planning is requested.
-2. `ride_planning_request_failed`: Error occurred during processing.
-3. `ride_planning_waiting_for_approval`: Quotes are ready for approval.
-4. `ride_planning_waiting_for_expiration`: Pending expiration event.
-5. `ride_planning_approve_failed`: Ride planning approval failed.
-6. `ride_planning_approved`: User approved a ride planning.
-7. `ride_planning_expired`: Ride planning expired.
 
 # **How to Deploy**
 This repository follows a **monorepo** structure, where each folder represents a backend service.  
