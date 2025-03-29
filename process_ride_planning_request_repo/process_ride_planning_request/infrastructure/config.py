@@ -23,7 +23,7 @@ from process_ride_planning_request.drivers_adapters.gateways.ride_option_uber_pa
     RideOptionUberPartnerGateway
 from process_ride_planning_request.drivers_adapters.gateways.sns_notification_gateway import TopicArn, SnsClient, \
     SnsNotificationGateway
-from process_ride_planning_request.interface_adapters.process_ride_planning_expiration_handler import \
+from process_ride_planning_request.interface_adapters.process_ride_planning_request_handler import \
     ProcessRidePlanningRequestHandler
 
 

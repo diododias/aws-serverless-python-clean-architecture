@@ -6,6 +6,8 @@ from unittest import mock
 from aws_lambda_powertools.utilities.parser import parse
 from aws_lambda_powertools.utilities.typing import LambdaContext
 
+from request_ride_planning.domain.entities.ride_planning_entity import RidePlanningEntity
+from request_ride_planning.application.too_many_requests_exception import TooManyRequestsException
 from request_ride_planning.domain.use_cases.request_ride_planning_use_case_interface import RequestRidePlanningUseCaseInterface
 from request_ride_planning.interface_adapters.handler_response import HandlerResponse
 from request_ride_planning.interface_adapters.request_ride_planning_handler import RequestRidePlanningHandler
@@ -164,3 +166,94 @@ class TestRequestRidePlanningHandler:
         assert response.get("statusCode") == 500
         use_case.execute.assert_called()
 
+    ## IA GENERATED
+    def return_bad_request_when_missing_address_from(self):
+        # Arrange
+        use_case = mock.Mock(spec=RequestRidePlanningUseCaseInterface)
+        handler = RequestRidePlanningHandler(use_case, parse)
+
+        request = copy.copy(self.mock_event)
+        del request["body"]["address_from"]
+
+        # Act
+        response: HandlerResponse = handler.handle(request, self.context)
+
+        # Assert
+        assert response.get("statusCode") == 400
+        use_case.execute.assert_not_called()
+
+    def return_bad_request_when_missing_address_to(self):
+        # Arrange
+        use_case = mock.Mock(spec=RequestRidePlanningUseCaseInterface)
+        handler = RequestRidePlanningHandler(use_case, parse)
+
+        request = copy.copy(self.mock_event)
+        del request["body"]["address_to"]
+
+        # Act
+        response: HandlerResponse = handler.handle(request, self.context)
+
+        # Assert
+        assert response.get("statusCode") == 400
+        use_case.execute.assert_not_called()
+
+    def return_bad_request_when_missing_departure_datetime(self):
+        # Arrange
+        use_case = mock.Mock(spec=RequestRidePlanningUseCaseInterface)
+        handler = RequestRidePlanningHandler(use_case, parse)
+
+        request = copy.copy(self.mock_event)
+        del request["body"]["departure_datetime"]
+
+        # Act
+        response: HandlerResponse = handler.handle(request, self.context)
+
+        # Assert
+        assert response.get("statusCode") == 400
+        use_case.execute.assert_not_called()
+
+    def return_bad_request_when_departure_datetime_in_past(self):
+        # Arrange
+        use_case = mock.Mock(spec=RequestRidePlanningUseCaseInterface)
+        handler = RequestRidePlanningHandler(use_case, parse)
+
+        request = copy.copy(self.mock_event)
+        request["body"]["departure_datetime"] = "2020-01-01T00:00:00.000Z"
+
+        # Act
+        response: HandlerResponse = handler.handle(request, self.context)
+
+        # Assert
+        assert response.get("statusCode") == 400
+        use_case.execute.assert_not_called()
+
+    def return_bad_request_when_invalid_json(self):
+        # Arrange
+        use_case = mock.Mock(spec=RequestRidePlanningUseCaseInterface)
+        handler = RequestRidePlanningHandler(use_case, parse)
+
+        request = copy.copy(self.mock_event)
+        request["body"] = "{invalid_json}"
+
+        # Act
+        response: HandlerResponse = handler.handle(request, self.context)
+
+        # Assert
+        assert response.get("statusCode") == 400
+        use_case.execute.assert_not_called()
+
+    def return_too_many_requests_when_has_same_ride_less_than_five_minutes(self):
+        # Arrange
+        use_case = mock.Mock(spec=RequestRidePlanningUseCaseInterface)
+        ride_planning = mock.Mock(spec=RidePlanningEntity)
+        use_case.execute.side_effect = TooManyRequestsException(ride_planning)
+        handler = RequestRidePlanningHandler(use_case, parse)
+
+        request = copy.copy(self.mock_event)
+
+        # Act
+        response: HandlerResponse = handler.handle(request, self.context)
+
+        # Assert
+        assert response.get("statusCode") == 429
+        use_case.execute.assert_called()
