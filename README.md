@@ -59,14 +59,36 @@ Users can request a ride plan by providing:
 
 Upon submission, the service:
 - Validates the request.
+- Identifies the user through the received event, due to authentication at the gateway.
+- Applies idempotency:
+  1. Duplicate requests within 5 minutes return the same `ride_planning_id`.  
+  2. If a duplicate request is made after 5 minutes, the previous request will be marked as `WAITING_FOR_EXPIRATION`, and the event `ride_planning_waiting_for_expiration` will be emitted. This event will later be processed by the `process_ride_planning_expiration` service.  
+  3. A new `ride_planning_request` will be generated.
 - Creates a DynamoDB entry with status `REQUESTED`.
-- Emits a `ride_planning_requested` event.
+- Emits a `ride_planning_requested` event, to be processed asynchronously via `process_ride_planning_request` service.
 - Returns a `ride_planning_id`.
-- Processes requests asynchronously via `process_ride_planning_request` service.
-- Applies idempotency: Duplicate requests within 5 minutes return the previous `ride_planning_id`. Requests after 5 minutes create a new planning with status `WAITING_FOR_EXPIRATION`, triggering the `ride_planning_waiting_for_expiration` event processed by the expiration service.
 
 ### API Endpoint
 `HTTP POST /v1/ride-planning`
+
+### Request Example
+```json
+{
+  "address_from": {
+    "street": "Rua Augusta, 321",
+    "city": "Sao Paulo",
+    "country": "Brazil",
+    "postal_code": "03881100"
+  },
+  "address_to": {
+    "street": "Avenida 25 de Marco, 322",
+    "city": "Sao Paulo",
+    "country": "Brazil",
+    "postal_code": "03881100"
+  },
+  "departure_datetime": "2024-12-01T05:33:20.000Z"
+}
+```
 
 ### Response Example
 ```json
@@ -90,9 +112,6 @@ The `ride_planning_requested` event triggers backend processing to:
 
 Users can check the status of their ride planning request.
 
-### API Endpoint
-`HTTP GET /v1/ride-planning/{id}`
-
 ### Possible Statuses
 - `REQUESTED`: Request created and being processed.
 - `WAITING_FOR_APPROVAL`: Quotes are ready for user selection.
@@ -101,6 +120,52 @@ Users can check the status of their ride planning request.
 - `REQUEST_FAILED`: Processing failed.
 - `WAITING_FOR_EXPIRATION`: Pending expiration.
 
+### API Endpoint
+`HTTP GET /v1/ride-planning/{id}`
+
+
+### Response Example
+```json
+{
+  "id": "d39d5e8ed9c04096a65f679468600db1",
+  "user_id": "cace4a159ff9f2512dd42373760608767b62855d",
+  "address_from": {
+    "street": "Rua Augusta, 321",
+    "city": "Sao Paulo",
+    "country": "Brazil",
+    "postal_code": "03881100"
+  },
+  "address_to": {
+    "street": "Rua Augusta, 321",
+    "city": "Sao Paulo",
+    "country": "Brazil",
+    "postal_code": "03881100"
+  },
+  "departure_datetime": "2024-12-01 05:33:20+00:00",
+  "created_at": "2024-08-30 01:38:09+00:00",
+  "modified_at": "2024-08-30 01:38:09+00:00",
+  "status": "WAITING_FOR_APPROVAL",
+  "ride_options": [
+    {
+      "id": "3e60414669aeacba0c72ed9535b4d4ea95042e00",
+      "provider_id": "dcdddd0d3b843628f21d95e0ef015dfade972412",
+      "provider": "UBER",
+      "tier": "PREMIUM",
+      "price": 29.99,
+      "accepted": false
+    },
+    {
+      "id": "66908dc7866e366f3210657b82c76695deadf007",
+      "provider_id": "0022ae5daadd82915ffa6f6f880c9392f756eb27",
+      "provider": "99 TAXI",
+      "tier": "ECONOMY",
+      "price": 15.50,
+      "accepted": false
+    }
+  ]
+}
+
+```
 ---
 
 ## 4. Accept Ride
@@ -113,7 +178,7 @@ Users confirm their ride selection by providing:
 Rides must be accepted within 5 minutes after processing completion. If not, the request expires and the process must be restarted.
 
 ### API Endpoint
-`HTTP POST /v1/ride-planning/{id}/accept`
+`HTTP POST /v1/ride-planning/{ridePlanningId}/accept/{rideOptionId}`
 
 ---
 
@@ -144,7 +209,7 @@ Our architecture exposes **three key API routes** to the frontend:
 
 - **`POST /v1/ride-planning`** – Initiates a ride planning request.  
 - **`GET /v1/ride-planning/{id}`** – Retrieves the status and details of a ride request.  
-- **`POST /v1/ride-planning/{id}/accept`** – Confirms and books a selected ride option.  
+- **`POST /v1/ride-planning/{id}/accept/{rideOptionId}`** – Confirms and books a selected ride option.  
 
 Each of these routes is handled by an **AWS Lambda function**, which processes user requests **synchronously** and interacts with a **central DynamoDB database** to manage ride planning and status updates.  
 
@@ -156,10 +221,11 @@ The backend uses an event-driven architecture with:
 - **SNS (Simple Notification Service)** for broadcasting domain events.
 - **SQS (Simple Queue Service)** for filtering events and queueing them for processing by AWS Lambda functions.
 - **Dead Letter Queues (DLQ)** for reliable error handling.
+- **DynamoDB** for persistence.
 
 Services:
 - **Process Ride Planning Request**: Handles `ride_planning_requested` events, integrates with ride-hailing services, and updates the status to `WAITING_FOR_APPROVAL`.
-- **Process Ride Planning Expiration**: Processes `ride_planning_waiting_for_expiration` events, marks planning as `EXPIRED`, and emits a `ride_planning_expired` event.
+- **Process Ride Planning Expiration**: Processes `ride_planning_waiting_for_expiration` events, marks ride_planning as `EXPIRED`, and emits a `ride_planning_expired` event.
 
 ---
 
@@ -173,9 +239,15 @@ Within the `build/` folder, you'll find a `deploy.sh` script that can be execute
 
 > ./get_ride_planning_repo/build/deploy.sh
 
-# Services under development
+---
+# Features under development
 
-- accept ride planning
+- Accept ride planning service
+- Authentication via AWS Cognito
+- Static Front-end hosted on S3 with CloudFront
+- Unit Test Coverage to 85%
+- Integration Test
+- CI/CD with GitHub Actions
 
-
+---
 *This documentation was AI-assisted, but the project was fully developed hands-on by a highly skilled software engineer.*
